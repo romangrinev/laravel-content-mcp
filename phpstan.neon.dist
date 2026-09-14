@@ -1,0 +1,7 @@
+parameters:
+    level: 6
+    paths:
+        - src
+    tmpDir: /tmp/laravel-content-mcp-phpstan
+    parallel:
+        maximumNumberOfProcesses: 1
