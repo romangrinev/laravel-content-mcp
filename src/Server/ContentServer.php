@@ -15,7 +15,7 @@ class ContentServer extends Server
 {
     protected string $name = 'Laravel Content MCP';
 
-    protected string $version = '0.1.0';
+    protected string $version = '0.1.1';
 
     protected string $instructions = 'Manage only explicitly registered content. Read before writing. Creation is draft-only; publishing and archival are separate consequential actions.';
 

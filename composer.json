@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "grinev-studio/laravel-content-mcp",
+    "name": "romangrinev/laravel-content-mcp",
     "description": "A safe, resource-driven MCP content server for Laravel applications.",
     "keywords": ["laravel", "mcp", "content-management"],
     "homepage": "https://github.com/romangrinev/laravel-content-mcp",
