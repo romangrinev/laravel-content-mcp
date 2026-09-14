@@ -12,9 +12,6 @@ jobs:
       matrix:
         include:
           - php: '8.3'
-            laravel: '^11.45.3'
-            testbench: '^9.15'
-          - php: '8.3'
             laravel: '^12.41.1'
             testbench: '^10.8'
           - php: '8.4'

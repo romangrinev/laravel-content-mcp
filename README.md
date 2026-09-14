@@ -7,7 +7,7 @@ The package exposes only resources and fields explicitly registered by the host 
 ## Requirements
 
 - PHP 8.3+
-- Laravel 11.45.3+, 12.41.1+, or 13.x, matching `laravel/mcp` 0.9
+- Laravel 12.41.1+ or 13.x, matching `laravel/mcp` 0.9. Laravel 11 is intentionally excluded because its currently resolvable releases are blocked by Composer security advisories.
 - Sanctum for bearer-token remote access, or host-configured Passport/OAuth middleware
 
 ## Installation
