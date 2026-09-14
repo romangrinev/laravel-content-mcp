@@ -1,0 +1,56 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "grinev-studio/laravel-content-mcp",
+    "description": "A safe, resource-driven MCP content server for Laravel applications.",
+    "keywords": ["laravel", "mcp", "content-management"],
+    "homepage": "https://github.com/romangrinev/laravel-content-mcp",
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": "^8.3",
+        "laravel/mcp": "^0.9.5",
+        "laravel/sanctum": "^4.0",
+        "illuminate/cache": "^11.45.3|^12.41.1|^13.0",
+        "illuminate/contracts": "^11.45.3|^12.41.1|^13.0",
+        "illuminate/database": "^11.45.3|^12.41.1|^13.0",
+        "illuminate/support": "^11.45.3|^12.41.1|^13.0",
+        "illuminate/validation": "^11.45.3|^12.41.1|^13.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.32",
+        "orchestra/testbench": "^9.15|^10.8|^11.0",
+        "phpstan/phpstan": "^2.1",
+        "phpunit/phpunit": "^11.5|^12.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "GrinevStudio\\LaravelContentMcp\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "GrinevStudio\\LaravelContentMcp\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "GrinevStudio\\LaravelContentMcp\\LaravelContentMcpServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "lint": "pint --test",
+        "analyse": "phpstan analyse --debug --no-progress",
+        "test": "phpunit",
+        "check": ["@lint", "@analyse", "@test"]
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        },
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
