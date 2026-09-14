@@ -1,6 +1,6 @@
 # Laravel Content MCP
 
-`grinev-studio/laravel-content-mcp` is a reusable, resource-driven MCP content server for Laravel applications. It uses the official `laravel/mcp` transport and works directly with compatible MCP clients; Grinev Studio is optional.
+`romangrinev/laravel-content-mcp` is a reusable, resource-driven MCP content server for Laravel applications. It uses the official `laravel/mcp` transport and works directly with compatible MCP clients; Grinev Studio is optional.
 
 The package exposes only resources and fields explicitly registered by the host application. It never discovers Eloquent models, database columns, `$fillable`, or Filament resources.
 
@@ -15,7 +15,7 @@ The package exposes only resources and fields explicitly registered by the host 
 Install the tagged release through Composer; no local checkout or custom repository entry is required:
 
 ```bash
-composer require grinev-studio/laravel-content-mcp:^0.1
+composer require romangrinev/laravel-content-mcp:^0.1.1
 php artisan vendor:publish --tag=content-mcp-config
 php artisan migrate
 ```
