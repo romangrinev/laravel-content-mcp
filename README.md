@@ -12,19 +12,10 @@ The package exposes only resources and fields explicitly registered by the host 
 
 ## Installation
 
-Before the first public release, use a Composer VCS or local path repository. For local package development:
-
-```json
-{
-  "repositories": [{ "type": "path", "url": "../laravel-content-mcp", "options": { "symlink": true } }],
-  "require": { "grinev-studio/laravel-content-mcp": "@dev" }
-}
-```
-
-Then run:
+Install the tagged release through Composer; no local checkout or custom repository entry is required:
 
 ```bash
-composer update grinev-studio/laravel-content-mcp laravel/mcp --with-dependencies
+composer require grinev-studio/laravel-content-mcp:^0.1
 php artisan vendor:publish --tag=content-mcp-config
 php artisan migrate
 ```
@@ -83,4 +74,4 @@ composer install
 composer check
 ```
 
-CI runs formatting, PHPStan, and PHPUnit against all supported Laravel/Testbench lines. Version 0.1.0 is the initial target; release and Packagist publication require separate approval.
+CI runs formatting, PHPStan, and PHPUnit against all supported Laravel/Testbench lines.
