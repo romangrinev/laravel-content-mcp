@@ -8,7 +8,7 @@ interface ContentResource
 {
     public function contentType(): string;
 
-    /** @return array{can_list: bool, can_read: bool, can_create_draft: bool, can_update: bool, can_publish: bool, can_archive: bool} */
+    /** @return array{can_list: bool, can_read: bool, can_create_draft: bool, can_update: bool, can_publish: bool, can_archive: bool, can_restore: bool} */
     public function capabilities(): array;
 
     /** @return array<string, mixed> */
@@ -36,6 +36,8 @@ interface ContentResource
     public function publish(Authenticatable $actor, mixed $item): mixed;
 
     public function archive(Authenticatable $actor, mixed $item): mixed;
+
+    public function restore(Authenticatable $actor, mixed $item): mixed;
 
     public function version(mixed $item): string;
 }

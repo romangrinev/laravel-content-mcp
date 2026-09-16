@@ -34,4 +34,9 @@ abstract class ContentResource implements ContentResourceContract
     {
         throw ContentMcpException::unsupported();
     }
+
+    public function restore(Authenticatable $actor, mixed $item): mixed
+    {
+        throw ContentMcpException::unsupported();
+    }
 }

@@ -132,6 +132,19 @@ class ContentManager
     /** @param array<string, mixed> $input
      * @return array<string, mixed>
      */
+    public function restore(?Authenticatable $actor, array $input): array
+    {
+        return $this->mutate($actor, $input, 'restore', 'content:publish', 'can_restore', function (ContentResource $resource, Authenticatable $actor, array $data): mixed {
+            $item = $this->existingVersionedItem($resource, $actor, $data);
+            $this->authorized($resource, $actor, 'restore', $item);
+
+            return $resource->restore($actor, $item);
+        });
+    }
+
+    /** @param array<string, mixed> $input
+     * @return array<string, mixed>
+     */
     private function mutate(?Authenticatable $actor, array $input, string $operation, string $ability, string $capability, Closure $execute): array
     {
         $actor = $this->actor($actor);

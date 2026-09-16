@@ -13,12 +13,15 @@ class FakeContentResource extends ContentResource
 
     public static int $mutations = 0;
 
+    public static bool $lifecycle = false;
+
     public static function reset(): void
     {
         self::$items = [
             '1' => (object) ['id' => '1', 'slug' => 'first', 'title' => 'First', 'published' => false, 'version' => 'v1'],
         ];
         self::$mutations = 0;
+        self::$lifecycle = false;
     }
 
     public function contentType(): string
@@ -28,7 +31,7 @@ class FakeContentResource extends ContentResource
 
     public function capabilities(): array
     {
-        return ['can_list' => true, 'can_read' => true, 'can_create_draft' => true, 'can_update' => true, 'can_publish' => true, 'can_archive' => false];
+        return ['can_list' => true, 'can_read' => true, 'can_create_draft' => true, 'can_update' => true, 'can_publish' => true, 'can_archive' => self::$lifecycle, 'can_restore' => self::$lifecycle];
     }
 
     public function constraints(): array
@@ -60,7 +63,7 @@ class FakeContentResource extends ContentResource
 
     public function serialize(mixed $item): array
     {
-        return ['id' => $item->id, 'slug' => $item->slug, 'title' => $item->title, 'status' => $item->published ? 'published' : 'draft'];
+        return ['id' => $item->id, 'slug' => $item->slug, 'title' => $item->title, 'status' => ($item->archived ?? false) ? 'archived' : ($item->published ? 'published' : 'draft')];
     }
 
     public function authorize(Authenticatable $actor, string $operation, mixed $item = null): bool
@@ -95,6 +98,26 @@ class FakeContentResource extends ContentResource
         self::$mutations++;
         $item->published = true;
         $item->version = 'v2';
+
+        return $item;
+    }
+
+    public function archive(Authenticatable $actor, mixed $item): mixed
+    {
+        self::$mutations++;
+        $item->archived = true;
+        $item->published = false;
+        $item->version = 'v2';
+
+        return $item;
+    }
+
+    public function restore(Authenticatable $actor, mixed $item): mixed
+    {
+        self::$mutations++;
+        $item->archived = false;
+        $item->published = false;
+        $item->version = 'v3';
 
         return $item;
     }

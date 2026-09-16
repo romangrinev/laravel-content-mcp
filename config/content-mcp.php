@@ -2,7 +2,7 @@
 
 return [
     'name' => env('CONTENT_MCP_NAME', config('app.name').' Content'),
-    'version' => '0.1.1',
+    'version' => '0.2.0',
     'instructions' => 'Manage only explicitly registered application content. Read before write and use separate publish or archive tools.',
 
     'resources' => [],

@@ -38,7 +38,7 @@ return [
 
 Each class extends `GrinevStudio\LaravelContentMcp\Resources\ContentResource` and must explicitly implement its content type, capability flags, constraints, search and lookup behavior, field allowlists, validation, authorization, serialization, URLs, version token, and supported lifecycle operations.
 
-The stable tools are `get_capabilities`, `search_content`, `get_content_item`, `create_content_draft`, `update_content_item`, `publish_content_item`, and conditionally `archive_content_item`. Archive is not registered unless a resource explicitly advertises `can_archive`.
+The stable tools are `get_capabilities`, `search_content`, `get_content_item`, `create_content_draft`, `update_content_item`, `publish_content_item`, and conditionally `archive_content_item` and `restore_content_item`. Lifecycle tools are registered only when a resource explicitly advertises the matching capability.
 
 ## Safety contract
 
@@ -46,7 +46,7 @@ The stable tools are `get_capabilities`, `search_content`, `get_content_item`, `
 - Sanctum abilities are `content:read`, `content:write`, and `content:publish`.
 - Every mutation requires an idempotency key; identical retries return the stored normalized result, while conflicting reuse fails.
 - Update and lifecycle calls require the version returned by a read.
-- Draft creation cannot publish. Update rejects lifecycle fields. Publish and archive are separate consequential tools. There is no delete tool.
+- Draft creation cannot publish. Update rejects lifecycle fields. Publish, archive, and restore are separate tools. Restore always returns to a resource-defined non-public state. There is no delete tool.
 - The host application remains authoritative for authorization and validation.
 - Pagination, field payloads, request rates, and idempotency retention are bounded in configuration.
 - Logs contain correlation IDs and hashes rather than bearer tokens or raw idempotency keys. Errors contain stable codes without stack traces or credentials.

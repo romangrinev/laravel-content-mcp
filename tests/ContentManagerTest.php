@@ -71,6 +71,26 @@ class ContentManagerTest extends TestCase
         })->once();
     }
 
+    public function test_archive_and_restore_are_explicit_versioned_operations(): void
+    {
+        FakeContentResource::$lifecycle = true;
+
+        $archived = $this->manager->archive($this->user, [
+            'content_type' => 'article', 'content_id' => '1', 'version' => 'v1', 'idempotency_key' => 'archive-item-key',
+        ]);
+        $this->assertSame('archived', $archived['item']['status']);
+
+        $this->expectCode('version_conflict', fn () => $this->manager->restore($this->user, [
+            'content_type' => 'article', 'content_id' => '1', 'version' => 'v1', 'idempotency_key' => 'restore-stale-key',
+        ]));
+
+        $restored = $this->manager->restore($this->user, [
+            'content_type' => 'article', 'content_id' => '1', 'version' => 'v2', 'idempotency_key' => 'restore-item-key',
+        ]);
+        $this->assertSame('draft', $restored['item']['status']);
+        $this->assertSame('v3', $restored['item']['version']);
+    }
+
     private function expectCode(string $code, callable $callback): void
     {
         try {
