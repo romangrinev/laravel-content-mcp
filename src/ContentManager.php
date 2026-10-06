@@ -214,13 +214,22 @@ class ContentManager
         }
         $rules = $resource->rules($operation, $item);
         $allowed = array_unique(array_map(fn (string $key): string => explode('.', $key, 2)[0], array_keys($rules)));
-        if (array_diff(array_keys($fields), $allowed) !== []) {
-            throw new ContentMcpException('validation_failed', 422, 'Only explicitly writable fields are accepted.');
+        $unknown = array_diff(array_keys($fields), $allowed);
+        if ($unknown !== []) {
+            $names = implode(', ', array_map(fn (string $name): string => mb_strimwidth($name, 0, 64), array_slice($unknown, 0, 5)));
+            throw new ContentMcpException('validation_failed', 422, "Fields {$names} are not writable. Use the advertised writable_fields list.");
         }
         try {
             return Validator::make($fields, $rules)->validate();
-        } catch (ValidationException) {
-            throw new ContentMcpException('validation_failed', 422, 'Correct the content fields and retry.');
+        } catch (ValidationException $exception) {
+            $messages = [];
+            foreach ($exception->errors() as $field => $errors) {
+                $messages[] = mb_strimwidth($field.': '.($errors[0] ?? 'Invalid value.'), 0, 250);
+                if (count($messages) === 4) {
+                    break;
+                }
+            }
+            throw new ContentMcpException('validation_failed', 422, implode(' ', $messages));
         }
     }
 

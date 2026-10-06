@@ -46,6 +46,32 @@ class ContentManagerTest extends TestCase
         $this->assertFalse(FakeContentResource::$items['1']->published);
     }
 
+    public function test_validation_recovery_hint_names_the_rejected_field(): void
+    {
+        try {
+            $this->manager->update($this->user, [
+                'content_type' => 'article', 'content_id' => '1', 'version' => 'v1',
+                'fields' => ['title' => str_repeat('x', 101)], 'idempotency_key' => 'invalid-title-length',
+            ]);
+            $this->fail('Expected validation to fail.');
+        } catch (ContentMcpException $exception) {
+            $this->assertSame('validation_failed', $exception->errorCode);
+            $this->assertStringContainsString('title:', $exception->recoveryHint);
+            $this->assertStringContainsString('100 characters', $exception->recoveryHint);
+        }
+
+        try {
+            $this->manager->update($this->user, [
+                'content_type' => 'article', 'content_id' => '1', 'version' => 'v1',
+                'fields' => ['published' => true], 'idempotency_key' => 'invalid-publish-field',
+            ]);
+            $this->fail('Expected an unwritable field to fail.');
+        } catch (ContentMcpException $exception) {
+            $this->assertSame('validation_failed', $exception->errorCode);
+            $this->assertStringContainsString('published', $exception->recoveryHint);
+        }
+    }
+
     public function test_idempotent_replay_does_not_repeat_mutation_and_conflicting_reuse_fails(): void
     {
         $input = ['content_type' => 'article', 'fields' => ['title' => 'Draft'], 'idempotency_key' => 'same-draft-key', 'correlation_id' => 'correlation-1'];
