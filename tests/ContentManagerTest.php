@@ -91,6 +91,28 @@ class ContentManagerTest extends TestCase
         $this->assertSame('v3', $restored['item']['version']);
     }
 
+    public function test_validation_metadata_and_field_errors_are_safe_and_authorized(): void
+    {
+        $constraints = $this->manager->capabilities($this->user)['capabilities'][0]['constraints'];
+        $this->assertSame(['spring', 'summer', 'fall', 'winter', 'year-round'], $constraints['field_validation']['update']['best_season']['enum']);
+        $this->assertTrue($constraints['field_validation']['create_draft']['title']['required']);
+        $this->assertSame(100.0, $constraints['field_validation']['update']['title']['maxLength']);
+        $this->assertSame(-90.0, $constraints['field_validation']['update']['latitude']['minimum']);
+        $this->assertArrayNotHasKey('password', $constraints['field_validation']['update']);
+        $payload = ['content_type' => 'article', 'content_id' => '1', 'version' => 'v1', 'fields' => ['title' => 'Valid title', 'best_season' => 'Bearer private-token'], 'idempotency_key' => 'invalid-enum-1'];
+        try {
+            $this->manager->update($this->user, $payload);
+            $this->fail('Expected enum validation failure');
+        } catch (ContentMcpException $error) {
+            $this->assertSame('validation_failed', $error->errorCode);
+            $this->assertSame('enum', $error->fields['best_season'][0]['code']);
+            $this->assertStringNotContainsString('private-token', json_encode($error->fields));
+        }
+        $this->assertSame(0, FakeContentResource::$mutations);
+        $this->user->allowed = false;
+        $this->expectCode('permission_denied', fn () => $this->manager->update($this->user, [...$payload, 'idempotency_key' => 'denied-enum-1']));
+    }
+
     private function expectCode(string $code, callable $callback): void
     {
         try {

@@ -4,6 +4,7 @@ namespace GrinevStudio\LaravelContentMcp\Tests;
 
 use GrinevStudio\LaravelContentMcp\Resources\ContentResource;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Validation\Rule;
 use stdClass;
 
 class FakeContentResource extends ContentResource
@@ -36,7 +37,7 @@ class FakeContentResource extends ContentResource
 
     public function constraints(): array
     {
-        return ['readable_fields' => ['title', 'published'], 'writable_fields' => ['title']];
+        return ['readable_fields' => ['title', 'published'], 'writable_fields' => ['title', 'best_season', 'latitude']];
     }
 
     public function search(Authenticatable $actor, ?string $query, ?string $status, ?string $cursor, int $limit): array
@@ -73,7 +74,7 @@ class FakeContentResource extends ContentResource
 
     public function rules(string $operation, mixed $item = null): array
     {
-        return ['title' => ['required', 'string', 'max:100']];
+        return ['title' => ['required', 'string', 'max:100'], 'best_season' => ['sometimes', 'nullable', Rule::in(['spring', 'summer', 'fall', 'winter', 'year-round'])], 'latitude' => ['sometimes', 'numeric', 'between:-90,90'], 'password' => ['sometimes', 'string', 'min:8']];
     }
 
     public function createDraft(Authenticatable $actor, array $fields): mixed

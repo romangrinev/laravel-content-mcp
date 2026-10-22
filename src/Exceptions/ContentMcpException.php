@@ -6,10 +6,12 @@ use RuntimeException;
 
 class ContentMcpException extends RuntimeException
 {
+    /** @param array<string, list<array<string, mixed>>> $fields */
     public function __construct(
         public readonly string $errorCode,
         public readonly int $status = 400,
         public readonly ?string $recoveryHint = null,
+        public readonly array $fields = [],
     ) {
         parent::__construct($errorCode);
     }

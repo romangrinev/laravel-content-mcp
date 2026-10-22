@@ -75,3 +75,9 @@ composer check
 ```
 
 CI runs formatting, PHPStan, and PHPUnit against all supported Laravel/Testbench lines.
+
+## Field validation metadata
+
+`get_capabilities` adds `constraints.field_validation.create_draft` and `.update` for supported operations. Metadata comes only from the resource's explicit `rules()` intersected with `constraints.writable_fields`: types, required/nullable, `Rule::in`/`in`, min/max/between and safe formats. SQL rules, callbacks, sensitive fields and unrelated keys are omitted. This is a partial description; conditional and item-dependent rules remain authoritative on mutation. Rules that require an item and cannot be described without one are omitted rather than guessed.
+
+Validation errors add a bounded `fields` map of paths to `{code, message}` violations. The envelope, tool names and HTTP/MCP behavior remain compatible. Messages never include rejected values, SQL or credentials. After a package upgrade, refresh the connection's cached capabilities in Grinev Studio.
