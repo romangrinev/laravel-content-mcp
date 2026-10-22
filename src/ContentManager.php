@@ -30,6 +30,21 @@ class ContentManager
                 continue;
             }
             $flags = $resource->capabilities();
+            $constraints = $resource->constraints();
+            $allowed = is_array($constraints['writable_fields'] ?? null) ? $constraints['writable_fields'] : [];
+            foreach (['create_draft', 'update'] as $operation) {
+                if (! $flags['can_'.$operation]) {
+                    continue;
+                }
+                try {
+                    $description = ValidationMetadata::describe($resource->rules($operation), $allowed);
+                    if ($description !== []) {
+                        $constraints['field_validation'][$operation] = $description;
+                    }
+                } catch (Throwable) {
+                    // Item-dependent rules remain authoritative at write time.
+                }
+            }
             $capabilities[] = [
                 'content_type' => $resource->contentType(),
                 ...$flags,
@@ -37,7 +52,7 @@ class ContentManager
                     fn (string $key): string => str_replace('can_', '', $key),
                     array_keys(array_filter($flags)),
                 ),
-                'constraints' => $resource->constraints(),
+                'constraints' => $constraints,
             ];
         }
 
@@ -232,8 +247,10 @@ class ContentManager
         }
         try {
             return Validator::make($fields, $rules)->validate();
-        } catch (ValidationException) {
-            throw new ContentMcpException('validation_failed', 422, 'Correct the content fields and retry.');
+        } catch (ValidationException $exception) {
+            $advertised = $resource->constraints()['writable_fields'] ?? [];
+            $details = ValidationMetadata::errors($exception->validator->failed(), is_array($advertised) ? $advertised : []);
+            throw new ContentMcpException('validation_failed', 422, 'Correct the indicated fields using get_capabilities and retry.', $details);
         }
     }
 

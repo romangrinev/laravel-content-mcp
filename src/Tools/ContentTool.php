@@ -21,6 +21,9 @@ abstract class ContentTool extends Tool
             return Response::structured($callback($request));
         } catch (ContentMcpException $exception) {
             $result = ['error' => $exception->errorCode];
+            if ($exception->errorCode === 'validation_failed' && $exception->fields !== []) {
+                $result['fields'] = $exception->fields;
+            }
             if ($exception->recoveryHint !== null) {
                 $result['recovery_hint'] = $exception->recoveryHint;
             }
