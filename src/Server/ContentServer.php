@@ -3,13 +3,18 @@
 namespace GrinevStudio\LaravelContentMcp\Server;
 
 use GrinevStudio\LaravelContentMcp\Tools\ArchiveContentItemTool;
+use GrinevStudio\LaravelContentMcp\Tools\AttachMediaToContentTool;
 use GrinevStudio\LaravelContentMcp\Tools\CreateContentDraftTool;
 use GrinevStudio\LaravelContentMcp\Tools\GetCapabilitiesTool;
 use GrinevStudio\LaravelContentMcp\Tools\GetContentItemTool;
+use GrinevStudio\LaravelContentMcp\Tools\GetMediaItemTool;
+use GrinevStudio\LaravelContentMcp\Tools\GetMediaUploadStatusTool;
 use GrinevStudio\LaravelContentMcp\Tools\PublishContentItemTool;
 use GrinevStudio\LaravelContentMcp\Tools\RestoreContentItemTool;
 use GrinevStudio\LaravelContentMcp\Tools\SearchContentTool;
 use GrinevStudio\LaravelContentMcp\Tools\UpdateContentItemTool;
+use GrinevStudio\LaravelContentMcp\Tools\UpdateMediaItemTool;
+use GrinevStudio\LaravelContentMcp\Tools\UploadMediaTool;
 use Laravel\Mcp\Server;
 
 class ContentServer extends Server
@@ -22,6 +27,12 @@ class ContentServer extends Server
 
     protected array $tools = [
         GetCapabilitiesTool::class,
+        UploadMediaTool::class,
+        GetMediaUploadStatusTool::class,
+        GetMediaItemTool::class,
+        UpdateMediaItemTool::class,
+        AttachMediaToContentTool::class,
+
         SearchContentTool::class,
         GetContentItemTool::class,
         CreateContentDraftTool::class,

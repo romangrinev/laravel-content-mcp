@@ -5,6 +5,7 @@ namespace GrinevStudio\LaravelContentMcp;
 use Closure;
 use GrinevStudio\LaravelContentMcp\Contracts\ContentResource;
 use GrinevStudio\LaravelContentMcp\Exceptions\ContentMcpException;
+use GrinevStudio\LaravelContentMcp\Media\MediaManager;
 use GrinevStudio\LaravelContentMcp\Models\IdempotencyKey;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\DB;
@@ -56,7 +57,7 @@ class ContentManager
             ];
         }
 
-        return ['capabilities' => $capabilities, 'correlation_id' => $this->correlationId($correlationId)];
+        return ['media_capabilities' => app(MediaManager::class)->capabilities($actor), 'capabilities' => $capabilities, 'correlation_id' => $this->correlationId($correlationId)];
     }
 
     /** @param array<string, mixed> $input
