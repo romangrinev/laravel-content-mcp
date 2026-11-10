@@ -1,0 +1,41 @@
+<?php
+
+namespace GrinevStudio\LaravelContentMcp\Tools;
+
+use Closure;
+use GrinevStudio\LaravelContentMcp\Exceptions\ContentMcpException;
+use GrinevStudio\LaravelContentMcp\Media\MediaManager;
+use Laravel\Mcp\Request;
+use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
+use Laravel\Mcp\Server\Tool;
+use Throwable;
+
+abstract class MediaTool extends Tool
+{
+    public function __construct(protected readonly MediaManager $manager) {}
+
+    protected function execute(Request $request, Closure $callback): ResponseFactory
+    {
+        try {
+            return Response::structured($callback($request));
+        } catch (ContentMcpException $exception) {
+            $result = ['error' => $exception->errorCode];
+            if ($exception->errorCode === 'validation_failed' && $exception->fields !== []) {
+                $result['fields'] = $exception->fields;
+            }
+            if ($exception->recoveryHint !== null) {
+                $result['recovery_hint'] = $exception->recoveryHint;
+            }
+            if (is_string($request->get('correlation_id'))) {
+                $result['correlation_id'] = $request->get('correlation_id');
+            }
+
+            return Response::make(Response::error(json_encode($result, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)))->withStructuredContent($result);
+        } catch (Throwable) {
+            $result = ['error' => 'unexpected_error'];
+
+            return Response::make(Response::error(json_encode($result)))->withStructuredContent($result);
+        }
+    }
+}

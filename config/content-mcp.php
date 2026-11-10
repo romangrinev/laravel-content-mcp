@@ -1,6 +1,8 @@
 <?php
 
 return [
+    // Optional, explicit host implementation of Contracts\MediaAdapter.
+    'media' => ['adapter' => null],
     'name' => env('CONTENT_MCP_NAME', config('app.name').' Content'),
     'version' => '0.2.0',
     'instructions' => 'Manage only explicitly registered application content. Read before write and use separate publish or archive tools.',

@@ -81,3 +81,45 @@ CI runs formatting, PHPStan, and PHPUnit against all supported Laravel/Testbench
 `get_capabilities` adds `constraints.field_validation.create_draft` and `.update` for supported operations. Metadata comes only from the resource's explicit `rules()` intersected with `constraints.writable_fields`: types, required/nullable, `Rule::in`/`in`, min/max/between and safe formats. SQL rules, callbacks, sensitive fields and unrelated keys are omitted. This is a partial description; conditional and item-dependent rules remain authoritative on mutation. Rules that require an item and cannot be described without one are omitted rather than guessed.
 
 Validation errors add a bounded `fields` map of paths to `{code, message}` violations. The envelope, tool names and HTTP/MCP behavior remain compatible. Messages never include rejected values, SQL or credentials. After a package upgrade, refresh the connection's cached capabilities in Grinev Studio.
+
+## Optional managed media
+
+Media is disabled by default. Configure `content-mcp.media.adapter` with a host class implementing
+`Contracts\MediaAdapter`, then run the package migration before enabling the adapter.
+No existing content resource must implement media methods. Capabilities include `media_capabilities: null`
+until an adapter is configured and authorizes discovery. Five tools register conditionally:
+`upload_media`, `get_media_upload_status`, `get_media_item`, `update_media_item`, and
+`attach_media_to_content`. There are no deletion, URL import or global usage-discovery tools.
+
+The upload input is `{data_base64, filename, mime_type, metadata?, idempotency_key}`. Only canonical,
+bounded base64 JPEG/PNG/WebP is accepted, with an 8 MiB/10,000-pixel/20-megapixel ceiling intersected
+with host limits. Configure a suitably bounded authenticated request body limit (12 MiB for an 8 MiB
+upload). Never send local paths, credentials or raw bytes in result envelopes. The host must fully decode
+images before persistence; header validation alone is insufficient. The trusted gateway strips EXIF/GPS
+before upload and binds the returned checksum to those sanitized bytes. Direct authenticated admin clients
+must sanitize their images beforehand, or the host may reject metadata-bearing payloads. Neither this
+package nor the host adapter automatically strips metadata. Preserve the uploaded bytes and checksum
+protocol rather than re-encoding already sanitized gateway uploads.
+
+Host `upload` receives a `Media\MediaUpload` value with bytes, filename and metadata. Host `get`
+returns one media object. Host `upload`/`update` return `{media: ...}` and `attach` returns `{item: ...}`
+with a fresh content version. Media records used by the gateway contain string `media_id` and `version`,
+HTTPS `url`, `mime_type`, integer `bytes`, `width`, `height`, SHA256 `checksum` and `metadata`.
+Attachment implementations must enforce allowed content types and fields, authorization, ownership,
+optimistic versions, atomic ordered replacement, omitted collections unchanged, and unchanged publication
+state. Detachment keeps the binary. Metadata edits may immediately affect already-public images.
+
+Every mutation uses a durable reservation keyed by a SHA256 of actor identity, operation and caller key.
+That opaque 64-character ID is passed to the host. The host must commit an immutable operation receipt
+atomically with database changes, expose it through `operationResult`, and compensate only proven storage
+rollbacks. The package intentionally does not run host storage changes in an outer transaction or retry them.
+Do not call the manager inside another database transaction (including transaction-wrapped test cases).
+Use database migrations rather than transaction-wrapped tests for integration tests.
+
+The package records the normalized result separately. If this final save/response is interrupted,
+`get_media_upload_status` accepts the original `idempotency_key` and recovers the actor-scoped host receipt.
+It returns `completed` with media, `uncertain`, or `not_found`. Neither uncertain nor not_found authorizes a
+new upload. Concurrent/identical retries never re-execute an uncertain mutation; changed payloads fail with
+`idempotency_conflict`. Correlation IDs do not affect replay identity. A rejected host mutation retains its
+reservation: correct the request and use a new key. Never prune uncertain reservations or host receipts
+without an explicit reconciliation/retention design. These records intentionally have no expiring retry lease.
